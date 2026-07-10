@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD Viewer</title>
+  <style>
+:root {
+  --color-bg: #ffffff;
+  --color-text: #1a1a2e;
+  --color-heading: #16213e;
+  --color-link: #2563eb;
+  --color-link-hover: #1d4ed8;
+  --color-code-bg: #f1f5f9;
+  --color-code-text: #e11d48;
+  --color-blockquote-bg: #f8fafc;
+  --color-blockquote-border: #3b82f6;
+  --color-table-border: #e2e8f0;
+  --color-table-header-bg: #f8fafc;
+  --color-hr: #e2e8f0;
+  --color-toc-bg: #f8fafc;
+  --color-toc-border: #e2e8f0;
+  --color-toc-link: #475569;
+  --color-toc-link-hover: #1e293b;
+  --font-body: "Noto Sans CJK SC", "WenQuanYi Micro Hei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, Monaco, monospace;
+  --max-width: 900px;
+  --radius: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+body { font-family: var(--font-body); font-size: 16px; line-height: 1.75; color: var(--color-text); background-color: var(--color-bg); -webkit-font-smoothing: antialiased; }
+#app { max-width: var(--max-width); margin: 0 auto; padding: 40px 24px 80px; }
+.doc-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--color-hr); }
+.doc-header h1 { font-size: 2em; font-weight: 700; color: var(--color-heading); line-height: 1.3; margin-bottom: 8px; }
+.doc-meta { display: flex; gap: 20px; color: #64748b; font-size: 0.9em; }
+.toc { background: var(--color-toc-bg); border: 1px solid var(--color-toc-border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 40px; }
+.toc-title { font-size: 1em; font-weight: 600; color: var(--color-heading); margin-bottom: 12px; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { padding: 4px 0; }
+.toc a { color: var(--color-toc-link); text-decoration: none; display: block; padding: 2px 0; transition: color 0.2s; }
+.toc a:hover { color: var(--color-toc-link-hover); }
+.toc-level-1 { font-weight: 600; font-size: 0.95em; }
+.toc-level-2 { padding-left: 20px; font-size: 0.9em; }
+.toc-level-3 { padding-left: 40px; font-size: 0.85em; }
+.toc-level-4, .toc-level-5, .toc-level-6 { padding-left: 60px; font-size: 0.85em; }
+.doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4, .doc-content h5, .doc-content h6 { font-weight: 600; color: var(--color-heading); margin-top: 1.8em; margin-bottom: 0.6em; line-height: 1.3; }
+.doc-content h1 { font-size: 1.8em; }
+.doc-content h2 { font-size: 1.5em; border-bottom: 1px solid var(--color-hr); padding-bottom: 0.3em; }
+.doc-content h3 { font-size: 1.25em; }
+.doc-content h4 { font-size: 1.1em; }
+.doc-content h5 { font-size: 1em; }
+.doc-content h6 { font-size: 0.9em; color: #64748b; }
+.doc-content p { margin-bottom: 1em; }
+.doc-content strong { font-weight: 700; }
+.doc-content a { color: var(--color-link); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+.doc-content a:hover { border-bottom-color: var(--color-link); }
+.inline-code { font-family: var(--font-mono); font-size: 0.875em; background: var(--color-code-bg); color: var(--color-code-text); padding: 2px 6px; border-radius: 4px; word-break: break-word; }
+.inline-image { max-width: 100%; height: auto; border-radius: var(--radius); }
+.math-inline { font-family: var(--font-mono); font-style: italic; background: #fef3c7; padding: 1px 4px; border-radius: 3px; font-size: 0.95em; }
+.code-block-wrapper { margin: 1em 0; border-radius: var(--radius); overflow: hidden; background: #1e293b; }
+.code-lang-label { font-size: 0.75em; color: #94a3b8; padding: 6px 16px; background: #0f172a; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.5px; }
+.code-block-wrapper pre { margin: 0; padding: 16px 20px; overflow-x: auto; }
+.code-block-wrapper code { font-family: var(--font-mono); font-size: 0.875em; line-height: 1.6; color: #e2e8f0; }
+.hl-keyword { color: #c084fc; }
+.hl-builtin { color: #67e8f9; }
+.hl-string { color: #86efac; }
+.hl-number { color: #fbbf24; }
+.hl-comment { color: #64748b; font-style: italic; }
+.hl-function { color: #60a5fa; }
+.table-wrapper { overflow-x: auto; margin: 1em 0; border-radius: var(--radius); border: 1px solid var(--color-table-border); }
+.table-wrapper table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+.table-wrapper th, .table-wrapper td { padding: 10px 16px; border: 1px solid var(--color-table-border); text-align: left; }
+.table-wrapper th { background: var(--color-table-header-bg); font-weight: 600; color: var(--color-heading); }
+.table-wrapper tr:hover td { background: #f8fafc; }
+.doc-content ul, .doc-content ol { margin: 0.8em 0; padding-left: 2em; }
+.doc-content li { margin-bottom: 0.4em; }
+.doc-content li ul, .doc-content li ol { margin: 0.3em 0; }
+.task-list { list-style: none; padding-left: 0; }
+.task-item { list-style: none; display: flex; align-items: flex-start; gap: 8px; }
+.task-item input[type="checkbox"] { margin-top: 6px; accent-color: var(--color-link); flex-shrink: 0; }
+.doc-content blockquote { margin: 1em 0; padding: 12px 20px; border-left: 4px solid var(--color-blockquote-border); background: var(--color-blockquote-bg); border-radius: 0 var(--radius) var(--radius) 0; color: #475569; }
+.doc-content blockquote p:last-child { margin-bottom: 0; }
+.doc-content hr { border: none; height: 2px; background: var(--color-hr); margin: 2em 0; }
+.math-block { font-family: var(--font-mono); font-size: 1.1em; text-align: center; padding: 16px; margin: 1em 0; background: #fefce8; border: 1px solid #fde68a; border-radius: var(--radius); }
+.error { padding: 20px; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); color: #991b1b; }
+.loading { text-align: center; padding: 60px 20px; color: #64748b; font-size: 1.1em; }
+@media (max-width: 768px) {
+  #app { padding: 20px 16px 60px; }
+  .doc-header h1 { font-size: 1.5em; }
+  .toc { padding: 16px; }
+  .code-block-wrapper pre { padding: 12px; }
+  .code-block-wrapper code { font-size: 0.8em; }
+  .table-wrapper th, .table-wrapper td { padding: 8px 10px; font-size: 0.85em; }
+}
+@media (max-width: 480px) { .doc-meta { flex-direction: column; gap: 4px; } }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+(function () {
+  "use strict";
+
+  function renderInline(elements) {
+    if (!elements || !elements.length) return [];
+    return elements.map(function (el) {
+      switch (el.type) {
+        case "text": return document.createTextNode(el.content);
+        case "strong":
+          var s = document.createElement("strong");
+          el.content.forEach(function (c) { s.appendChild(renderInline([c])[0]); });
+          return s;
+        case "em":
+          var em = document.createElement("em");
+          el.content.forEach(function (c) { em.appendChild(renderInline([c])[0]); });
+          return em;
+        case "strikethrough":
+          var del = document.createElement("del");
+          el.content.forEach(function (c) { del.appendChild(renderInline([c])[0]); });
+          return del;
+        case "code_inline":
+          var code = document.createElement("code");
+          code.className = "inline-code";
+          code.textContent = el.content;
+          return code;
+        case "link":
+          var a = document.createElement("a");
+          a.href = el.href;
+          if (el.title) a.title = el.title;
+          el.content.forEach(function (c) { a.appendChild(renderInline([c])[0]); });
+          return a;
+        case "image":
+          var img = document.createElement("img");
+          img.src = el.src; img.alt = el.alt || "";
+          if (el.title) img.title = el.title;
+          img.className = "inline-image";
+          return img;
+        case "math_inline":
+          var span = document.createElement("span");
+          span.className = "math-inline"; span.textContent = el.content;
+          return span;
+        case "softbreak": return document.createElement("br");
+        case "hardbreak":
+          var br = document.createElement("br"); br.className = "hardbreak"; return br;
+        default: return document.createTextNode("");
+      }
+    });
+  }
+
+  function appendInline(parent, elements) {
+    renderInline(elements).forEach(function (node) { parent.appendChild(node); });
+  }
+
+  function renderBlock(block, container) {
+    var el;
+    switch (block.type) {
+      case "heading":
+        el = document.createElement("h" + block.level);
+        el.id = block.id; el.textContent = block.text;
+        container.appendChild(el); break;
+      case "paragraph":
+        el = document.createElement("p");
+        appendInline(el, block.content);
+        container.appendChild(el); break;
+      case "code_block":
+        var wrapper = document.createElement("div");
+        wrapper.className = "code-block-wrapper";
+        if (block.lang) {
+          var langLabel = document.createElement("div");
+          langLabel.className = "code-lang-label"; langLabel.textContent = block.lang;
+          wrapper.appendChild(langLabel);
+        }
+        var pre = document.createElement("pre");
+        var code = document.createElement("code");
+        if (block.lang) code.className = "language-" + block.lang;
+        code.textContent = block.content;
+        pre.appendChild(code); wrapper.appendChild(pre);
+        applySyntaxHighlight(code, block.lang);
+        container.appendChild(wrapper); break;
+      case "table":
+        el = document.createElement("div"); el.className = "table-wrapper";
+        var table = document.createElement("table");
+        if (block.header && block.header.length) {
+          var thead = document.createElement("thead");
+          var tr = document.createElement("tr");
+          block.header.forEach(function (cell, idx) {
+            var th = document.createElement("th"); th.textContent = cell;
+            if (block.align && block.align[idx]) th.style.textAlign = block.align[idx];
+            tr.appendChild(th);
+          });
+          thead.appendChild(tr); table.appendChild(thead);
+        }
+        if (block.rows && block.rows.length) {
+          var tbody = document.createElement("tbody");
+          block.rows.forEach(function (row) {
+            var tr2 = document.createElement("tr");
+            row.forEach(function (cell, idx) {
+              var td = document.createElement("td"); td.textContent = cell;
+              if (block.align && block.align[idx]) td.style.textAlign = block.align[idx];
+              tr2.appendChild(td);
+            });
+            tbody.appendChild(tr2);
+          });
+          table.appendChild(tbody);
+        }
+        el.appendChild(table); container.appendChild(el); break;
+      case "list":
+        el = document.createElement(block.ordered ? "ol" : "ul");
+        if (block.ordered && block.start && block.start !== 1) el.start = block.start;
+        var hasTasks = block.items.some(function (item) { return item.type === "task_item"; });
+        if (hasTasks) el.className = "task-list";
+        block.items.forEach(function (item) { el.appendChild(renderListItem(item)); });
+        container.appendChild(el); break;
+      case "blockquote":
+        el = document.createElement("blockquote");
+        if (block.content) block.content.forEach(function (inner) { renderBlock(inner, el); });
+        container.appendChild(el); break;
+      case "hr":
+        el = document.createElement("hr"); container.appendChild(el); break;
+      case "math_block":
+        el = document.createElement("div"); el.className = "math-block"; el.textContent = block.content;
+        container.appendChild(el); break;
+      case "raw_html_block":
+        el = document.createElement("div"); el.className = "raw-html-block"; el.innerHTML = block.content;
+        container.appendChild(el); break;
+    }
+  }
+
+  function renderListItem(item) {
+    var li = document.createElement("li");
+    if (item.type === "task_item") {
+      li.className = "task-item";
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox"; checkbox.disabled = true; checkbox.checked = !!item.checked;
+      li.appendChild(checkbox);
+    }
+    if (item.content && item.content.length) {
+      var span = document.createElement("span");
+      appendInline(span, item.content); li.appendChild(span);
+    }
+    if (item.items && item.items.length) {
+      var subList = document.createElement("ul");
+      item.items.forEach(function (subItem) { subList.appendChild(renderListItem(subItem)); });
+      li.appendChild(subList);
+    }
+    return li;
+  }
+
+  function renderTOC(toc, container) {
+    if (!toc || !toc.length) return;
+    var tocContainer = document.createElement("nav");
+    tocContainer.className = "toc";
+    tocContainer.innerHTML = '<h3 class="toc-title">目录</h3>';
+    var ul = document.createElement("ul");
+    toc.forEach(function (item) {
+      var li = document.createElement("li"); li.className = "toc-level-" + item.level;
+      var a = document.createElement("a"); a.href = "#" + item.id; a.textContent = item.text;
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        var target = document.getElementById(item.id);
+        if (target) { target.scrollIntoView({ behavior: "smooth" }); history.pushState(null, null, "#" + item.id); }
+      });
+      li.appendChild(a); ul.appendChild(li);
+    });
+    tocContainer.appendChild(ul); container.appendChild(tocContainer);
+  }
+
+  function applySyntaxHighlight(codeEl, lang) {
+    if (!lang) return;
+    var text = codeEl.textContent;
+    var patterns = {
+      python: [
+        { regex: /(#.*)/g, cls: "hl-comment" },
+        { regex: /\b(import|from|def|class|return|if|else|elif|for|while|in|not|and|or|is|with|as|try|except|finally|raise|yield|lambda|pass|break|continue|global|nonlocal|assert|del)\b/g, cls: "hl-keyword" },
+        { regex: /\b(True|False|None)\b/g, cls: "hl-builtin" },
+        { regex: /\b(print|len|range|int|str|float|list|dict|set|tuple|type|isinstance|open|input|super)\b/g, cls: "hl-function" },
+        { regex: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, cls: "hl-string" },
+        { regex: /\b(\d+\.?\d*)\b/g, cls: "hl-number" }
+      ],
+      javascript: [
+        { regex: /(\/\/.*)/g, cls: "hl-comment" },
+        { regex: /\/\*[\s\S]*?\*\//g, cls: "hl-comment" },
+        { regex: /\b(var|let|const|function|return|if|else|for|while|do|switch|case|break|continue|new|this|class|extends|import|export|default|from|async|await|try|catch|finally|throw|typeof|instanceof|in|of|yield|null|undefined|true|false|void|delete)\b/g, cls: "hl-keyword" },
+        { regex: /\b(console|document|window|Array|Object|String|Number|Boolean|Math|Date|JSON|Promise|Map|Set|RegExp|Error)\b/g, cls: "hl-builtin" },
+        { regex: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, cls: "hl-string" },
+        { regex: /\b(\d+\.?\d*)\b/g, cls: "hl-number" }
+      ],
+      bash: [
+        { regex: /(#.*)/g, cls: "hl-comment" },
+        { regex: /\b(echo|cd|ls|mkdir|rm|cp|mv|cat|grep|sed|awk|find|export|source|if|then|else|fi|for|do|done|while|case|esac|function|return|exit|sudo|apt|npm|pip|python)\b/g, cls: "hl-keyword" },
+        { regex: /(\$[\w]+|\$\{[\w]+\})/g, cls: "hl-builtin" },
+        { regex: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, cls: "hl-string" }
+      ],
+      json: [
+        { regex: /("(?:[^"\\]|\\.)*")\s*:/g, cls: "hl-keyword" },
+        { regex: /:\s*("(?:[^"\\]|\\.)*")/g, cls: "hl-string" },
+        { regex: /\b(true|false|null)\b/g, cls: "hl-builtin" },
+        { regex: /\b(\d+\.?\d*)\b/g, cls: "hl-number" }
+      ],
+      html: [
+        { regex: /(&lt;!--[\s\S]*?--&gt;)/g, cls: "hl-comment" },
+        { regex: /(&lt;\/?[\w-]+)/g, cls: "hl-keyword" },
+        { regex: /\b([\w-]+)=/g, cls: "hl-builtin" },
+        { regex: /("(?:[^"\\]|\\.)*")/g, cls: "hl-string" }
+      ],
+      css: [
+        { regex: /(\/\*[\s\S]*?\*\/)/g, cls: "hl-comment" },
+        { regex: /([.#][\w-]+)/g, cls: "hl-keyword" },
+        { regex: /\b(display|position|margin|padding|border|color|background|font|width|height|top|left|right|bottom|z-index|overflow|flex|grid|transition|transform|animation|opacity|text-align|line-height|box-sizing)\b/g, cls: "hl-builtin" },
+        { regex: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, cls: "hl-string" },
+        { regex: /\b(\d+\.?\d*(px|em|rem|%|vh|vw|s|ms|deg)?)\b/g, cls: "hl-number" }
+      ]
+    };
+    var langPatterns = patterns[lang] || patterns.javascript;
+    var highlighted = escapeHtml(text);
+    langPatterns.forEach(function (rule) {
+      highlighted = highlighted.replace(rule.regex, function (match) {
+        return '<span class="' + rule.cls + '">' + match + "</span>";
+      });
+    });
+    codeEl.innerHTML = highlighted;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function render(data) {
+    var app = document.getElementById("app");
+    if (!app) { app = document.createElement("div"); app.id = "app"; document.body.appendChild(app); }
+    app.innerHTML = "";
+    if (data.metadata && data.metadata.title) {
+      var titleEl = document.createElement("header"); titleEl.className = "doc-header";
+      var h1 = document.createElement("h1"); h1.textContent = data.metadata.title; titleEl.appendChild(h1);
+      if (data.metadata.author || data.metadata.created) {
+        var meta = document.createElement("div"); meta.className = "doc-meta";
+        if (data.metadata.author) { var s = document.createElement("span"); s.textContent = "作者: " + data.metadata.author; meta.appendChild(s); }
+        if (data.metadata.created) { var s2 = document.createElement("span"); s2.textContent = "日期: " + data.metadata.created; meta.appendChild(s2); }
+        titleEl.appendChild(meta);
+      }
+      app.appendChild(titleEl);
+    }
+    renderTOC(data.toc, app);
+    var content = document.createElement("main"); content.className = "doc-content";
+    if (data.blocks) data.blocks.forEach(function (block) { renderBlock(block, content); });
+    app.appendChild(content);
+    document.title = (data.metadata && data.metadata.title) || "Markdown Document";
+  }
+
+  function showLoading() {
+    var app = document.getElementById("app");
+    if (!app) { app = document.createElement("div"); app.id = "app"; document.body.appendChild(app); }
+    app.innerHTML = '<div class="loading">正在加载文档...</div>';
+  }
+
+  function showError(msg) {
+    var app = document.getElementById("app");
+    if (!app) { app = document.createElement("div"); app.id = "app"; document.body.appendChild(app); }
+    app.innerHTML = '<div class="error">加载文档数据失败: ' + escapeHtml(msg) + '</div>';
+  }
+
+  function init() {
+    // 1. 从内嵌 script 标签读取
+    var embeddedData = document.getElementById("md-data");
+    if (embeddedData) {
+      try { render(JSON.parse(embeddedData.textContent)); return; } catch (e) { console.error("解析内嵌 JSON 失败:", e); }
+    }
+
+    // 2. 从 URL 参数 ?json=path 读取
+    var params = new URLSearchParams(window.location.search);
+    var jsonPath = params.get("json");
+
+    if (!jsonPath) {
+      showError("缺少参数。请在 URL 中指定 ?json=文件名.json");
+      return;
+    }
+
+    showLoading();
+
+    fetch(jsonPath)
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status + " - " + jsonPath);
+        return res.json();
+      })
+      .then(function (data) { render(data); })
+      .catch(function (err) { showError(err.message); });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+  </script>
+</body>
+</html>
