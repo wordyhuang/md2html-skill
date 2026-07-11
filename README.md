@@ -28,6 +28,18 @@ MD 文件 ──→ md_to_json.py ──→ JSON ──→ render_html.py --embe
               (Python 解析器)         (机器中间态)         (内嵌模式)      (浏览器直接打开)
 ```
 
+## 为 Agent 安装此 Skill
+
+**将下面这段话复制发送给你的 Agent，即可自动安装：**
+
+> 请帮我安装 md2htmlSkill：从 GitHub 仓库 `wordyhuang/md2html-skill` 下载 `SKILL.md` 到当前工作目录的 `.trae/skills/md2htmlSkill/SKILL.md`，并根据实际项目路径更新 SKILL.md 中的路径配置。
+
+如果上述指令不被支持，也可以手动执行：
+
+```bash
+mkdir -p .trae/skills/md2htmlSkill && curl -o .trae/skills/md2htmlSkill/SKILL.md https://raw.githubusercontent.com/wordyhuang/md2html-skill/main/SKILL.md
+```
+
 ## 快速开始
 
 ### 安装依赖
@@ -127,6 +139,18 @@ MD → JSON → HTML two-stage pipeline, zero-dependency rendering
 ```
 MD File ──→ md_to_json.py ──→ JSON ──→ render_html.py --embed ──→ Single HTML File
              (Python Parser)        (Intermediate)          (Embed Mode)     (Open in Browser)
+```
+
+## Install for Agents
+
+**Copy and send the text below to your Agent to auto-install:**
+
+> Please install md2htmlSkill: download `SKILL.md` from GitHub repo `wordyhuang/md2html-skill` to `.trae/skills/md2htmlSkill/SKILL.md` in the current workspace, and update the paths in SKILL.md to match your actual project layout.
+
+If the above instruction is not supported, run manually:
+
+```bash
+mkdir -p .trae/skills/md2htmlSkill && curl -o .trae/skills/md2htmlSkill/SKILL.md https://raw.githubusercontent.com/wordyhuang/md2html-skill/main/SKILL.md
 ```
 
 ## Quick Start
