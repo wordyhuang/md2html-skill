@@ -340,6 +340,84 @@ body {
   border-radius: var(--radius);
 }
 
+/* --- 暗黑模式 --- */
+:root[data-theme="dark"] {
+  --color-bg: #0f172a;
+  --color-text: #cbd5e1;
+  --color-heading: #e2e8f0;
+  --color-link: #60a5fa;
+  --color-link-hover: #93bbfd;
+  --color-code-bg: #1e293b;
+  --color-code-text: #f472b6;
+  --color-blockquote-bg: #1e293b;
+  --color-blockquote-border: #3b82f6;
+  --color-table-border: #334155;
+  --color-table-header-bg: #1e293b;
+  --color-hr: #334155;
+  --color-toc-bg: #1e293b;
+  --color-toc-border: #334155;
+  --color-toc-link: #94a3b8;
+  --color-toc-link-hover: #e2e8f0;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: var(--color-toc-bg);
+  border: 1px solid var(--color-toc-border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--color-text);
+  transition: background 0.3s, border-color 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.theme-toggle:hover {
+  background: var(--color-blockquote-border);
+  border-color: var(--color-blockquote-border);
+}
+
+:root[data-theme="dark"] .table-wrapper tr:hover td {
+  background: #1e293b;
+}
+
+:root[data-theme="dark"] .doc-content blockquote {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] .doc-content h6 {
+  color: #64748b;
+}
+
+:root[data-theme="dark"] .math-block {
+  background: #1c1917;
+  border-color: #44403c;
+}
+
+:root[data-theme="dark"] .error {
+  background: #1c1917;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+:root[data-theme="dark"] .code-block-wrapper {
+  background: #1a2332;
+  border: 1px solid #334155;
+}
+
+:root[data-theme="dark"] .code-lang-label {
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+}
+
 /* --- 错误提示 --- */
 .error {
   padding: 20px;

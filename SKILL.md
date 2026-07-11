@@ -16,7 +16,7 @@ description: "Convert any Markdown file to a beautifully rendered HTML page. Inv
 3. **生成自包含 HTML**：运行 `python code/render_html.py output/<文件名>.json -o output/<文件名>.html --embed`
    - `--embed` 参数将 JSON 数据内嵌到 HTML 中，生成单文件
    - 输出 HTML 也保存到：`output/`
-4. **发送给用户**：用 `start` 命令打开 HTML 文件，并通过 OpenPreview 发送 `computer://` 链接给用户查看
+4. **发送给用户**：通过 OpenPreview 发送 `computer://` 链接给用户查看，不要自动打开浏览器
 
 ## 关键规则
 

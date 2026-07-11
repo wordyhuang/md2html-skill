@@ -395,8 +395,43 @@
     document.title = pageTitle;
   }
 
+  // ========== 暗黑模式切换 ==========
+  function initThemeToggle() {
+    var saved = localStorage.getItem("md-theme");
+    if (saved === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else if (saved === "light") {
+      document.documentElement.removeAttribute("data-theme");
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+
+    var btn = document.createElement("button");
+    btn.className = "theme-toggle";
+    btn.title = "切换明暗模式";
+    updateThemeIcon(btn);
+    btn.addEventListener("click", function () {
+      var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        document.documentElement.removeAttribute("data-theme");
+        localStorage.setItem("md-theme", "light");
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("md-theme", "dark");
+      }
+      updateThemeIcon(btn);
+    });
+    document.body.appendChild(btn);
+  }
+
+  function updateThemeIcon(btn) {
+    var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    btn.textContent = isDark ? "\u2600" : "\u263D";
+  }
+
   // ========== 启动 ==========
   function init() {
+    initThemeToggle();
     // 优先从内嵌 script 标签读取
     var embeddedData = document.getElementById("md-data");
     if (embeddedData) {
