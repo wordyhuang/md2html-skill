@@ -19,6 +19,7 @@ MD → JSON → HTML 两阶段管道，零依赖渲染
 - **复杂语法支持**：GFM 表格、删除线、代码块语法高亮、YAML front matter
 - **自动目录**：根据标题层级自动生成 TOC，支持点击跳转
 - **响应式布局**：桌面端和移动端均可正常阅读
+- **低 Token 消耗**：纯 Python 本地解析，不依赖大模型生成，Token 消耗极低
 
 ## 架构
 
@@ -119,6 +120,7 @@ MD → JSON → HTML two-stage pipeline, zero-dependency rendering
 - **Complex syntax support**: GFM tables, strikethrough, code block syntax highlighting, YAML front matter
 - **Auto-generated TOC**: Automatically generates table of contents with click-to-jump
 - **Responsive layout**: Works on both desktop and mobile
+- **Low token consumption**: Pure Python local parsing, no LLM dependency, minimal token usage
 
 ## Architecture
 

@@ -1,6 +1,6 @@
 ---
 name: "md2htmlSkill"
-description: "Convert any Markdown file to a beautifully rendered HTML page. Invoke when user wants to convert MD to HTML, preview a markdown file, or view a .md document in browser."
+description: "Convert any Markdown file to a beautifully rendered HTML page. Invoke when user says '预览md', '查看md', 'preview md', 'view md', convert MD to HTML, or wants to view a .md document in browser."
 ---
 
 # md2htmlSkill
@@ -9,7 +9,7 @@ description: "Convert any Markdown file to a beautifully rendered HTML page. Inv
 
 ## 工作流程（内嵌模式，无需 HTTP 服务器）
 
-1. **读取 MD 文件**：确认用户提供的 `.md` 文件路径
+1. **读取 MD 文件**：确认用户提供的 `.md` 文件路径。若用户未指定文件，则自动查找当前工作目录下最近修改的 `.md` 文件（按修改时间倒序，取第一个）
 2. **转换为 JSON**：运行 `python code/md_to_json.py <md文件> -o output/<文件名>.json`
    - 依赖：`markdown-it-py`、`pyyaml`
    - JSON 输出到：`output/`
